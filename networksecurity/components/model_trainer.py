@@ -24,6 +24,27 @@ from sklearn.ensemble import (
     RandomForestClassifier,
 )
 import mlflow
+import dagshub
+import joblib
+
+def track_mlflow(self, best_model, classificationmetric):
+    with mlflow.start_run():
+        f1_score = classificationmetric.f1_score
+        precision_score = classificationmetric.precision_score
+        recall_score = classificationmetric.recall_score
+
+        mlflow.log_metric("f1_score", f1_score)
+        mlflow.log_metric("precision", precision_score)
+        mlflow.log_metric("recall_score", recall_score)
+
+        # Save the model to a file
+        model_file = "model.pkl"
+        joblib.dump(best_model, model_file)
+
+        # Log the model file as a generic artifact
+        mlflow.log_artifact(model_file)
+
+dagshub.init(repo_owner='anmolzzabc100', repo_name='networksecurity', mlflow=True)
 
 class ModelTrainer:
     def __init__(self,model_trainer_config:ModelTrainerConfig,data_transformation_artifact:DataTransformationArtifact):
@@ -33,18 +54,25 @@ class ModelTrainer:
         except Exception as e:
             raise NetworkSecurityException(e,sys)
         
-    def track_mlflow(self,best_model,classificationmetric):
+
+
+    def track_mlflow(self, best_model, classificationmetric):
         with mlflow.start_run():
-            f1_score=classificationmetric.f1_score
-            precision_score=classificationmetric.precision_score
-            recall_score=classificationmetric.recall_score
+            f1_score = classificationmetric.f1_score
+            precision_score = classificationmetric.precision_score
+            recall_score = classificationmetric.recall_score
 
-            
+            mlflow.log_metric("f1_score", f1_score)
+            mlflow.log_metric("precision", precision_score)
+            mlflow.log_metric("recall_score", recall_score)
 
-            mlflow.log_metric("f1_score",f1_score)
-            mlflow.log_metric("precision",precision_score)
-            mlflow.log_metric("recall_score",recall_score)
-            mlflow.sklearn.log_model(best_model,"model")
+            # Save the model to a file
+            model_file = "model.pkl"
+            joblib.dump(best_model, model_file)
+
+            # Log the model file as a generic artifact
+            mlflow.log_artifact(model_file)
+
 
 
         
