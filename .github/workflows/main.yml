@@ -56,7 +56,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
-          IMAGE_TAG: latest
+          IMAGE_TAG: latest  # or use: ${{ github.sha }} for unique tags
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -85,9 +85,13 @@ jobs:
         run: |
           echo "Deploying image: ${{ needs.build-and-push-ecr-image.outputs.image }}"
 
-
       - name: Pull latest image
-        run: docker pull ${{ needs.build-and-push-ecr-image.outputs.image }}
+        run: |
+          docker pull ${{ needs.build-and-push-ecr-image.outputs.image }}
+
+      - name: Stop and remove existing container if running
+        run: |
+          docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity || true
 
       - name: Run Docker container
         run: |
@@ -99,7 +103,6 @@ jobs:
             -e "AWS_REGION=${{ secrets.AWS_REGION }}" \
             ${{ needs.build-and-push-ecr-image.outputs.image }}
 
-
-      - name: Clean up old images and containers
+      - name: Clean old images and containers
         run: |
           docker system prune -f
