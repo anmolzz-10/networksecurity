@@ -37,7 +37,6 @@ class ModelTrainer:
         except Exception as e:
             raise NetworkSecurityException(e,sys)
 
-
     def track_mlflow(self, best_model, classificationmetric):
         with mlflow.start_run():
             f1_score = classificationmetric.f1_score
