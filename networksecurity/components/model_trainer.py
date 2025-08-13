@@ -36,7 +36,6 @@ class ModelTrainer:
             self.data_transformation_artifact=data_transformation_artifact
         except Exception as e:
             raise NetworkSecurityException(e,sys)
-        
 
 
     def track_mlflow(self, best_model, classificationmetric):
